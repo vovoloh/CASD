@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 public class MyTreeMap<K, V>
 {
@@ -18,9 +18,8 @@ public class MyTreeMap<K, V>
     private Node root;
     private int count;
     private readonly IComparer<K> comparer;
-    public MyTreeMap() : this(Comparer<K>.Default) 
-    { 
-
+    public MyTreeMap() : this(Comparer<K>.Default)
+    {
     }
     public MyTreeMap(IComparer<K> comp)
     {
@@ -33,15 +32,18 @@ public class MyTreeMap<K, V>
             comparer = comp;
         }
     }
+    //3 метод clear() для удаления всех пар «ключ-значение»
     public void Clear()
     {
         root = null;
         count = 0;
     }
+    //4 метод containsKey(object key) для проверки, содержит ли отображение указанный ключ
     public bool ContainsKey(K key)
     {
         return GetNode(key) != null;
     }
+    //5 метод containsValue(object value) для проверки, содержит ли отображение указанное значение
     public bool ContainsValue(V value)
     {
         return ContainsValue(root, value);
@@ -58,14 +60,14 @@ public class MyTreeMap<K, V>
         }
         return ContainsValue(node.Left, value) || ContainsValue(node.Right, value);
     }
-    private bool AreEqual(V a, V b)
+    // 6 метод entrySet() для возврата множества (Set) всех пар «ключ-значение» 
+    public ISet<KeyValuePair<K, V>> EntrySet()
     {
-        if (a == null)
-        {
-            return b == null;
-        }
-        return a.Equals(b);
+        var set = new HashSet<KeyValuePair<K, V>>();
+        CollectEntries(root, set);
+        return set;
     }
+    // 7 метод get(object key) для возврата значения, связанного с указанным ключом, или null, если ключ не найден
     public V Get(K key)
     {
         var node = GetNode(key);
@@ -75,10 +77,27 @@ public class MyTreeMap<K, V>
         }
         return default(V);
     }
+    // 8 метод isEmpty() для проверки, является ли отображение пустым
     public bool IsEmpty()
     {
         return count == 0;
     }
+    private bool AreEqual(V a, V b)
+    {
+        if (a == null)
+        {
+            return b == null;
+        }
+        return a.Equals(b);
+    }
+    // 9 метод keySet() для возврата множества (Set) всех ключей в отображении
+    public ISet<K> KeySet()
+    {
+        var set = new HashSet<K>();
+        CollectKeys(root, set);
+        return set;
+    }
+    // 10 метод put(K key, V value) для добавления пары «ключ-значение»
     public V Put(K key, V value)
     {
         var node = GetNode(key);
@@ -92,6 +111,7 @@ public class MyTreeMap<K, V>
         count++;
         return default(V);
     }
+    // 11 метод remove(object key) для удаления пары «ключ-значение»
     public V Remove(K key)
     {
         if (!ContainsKey(key))
@@ -103,10 +123,12 @@ public class MyTreeMap<K, V>
         count--;
         return old;
     }
+    // 12 метод size() для возврата количества пар «ключ-значение»
     public int Size()
     {
         return count;
     }
+    // 13 метод firstKey() для возврата первого ключа отображения
     public K FirstKey()
     {
         if (root == null)
@@ -115,7 +137,7 @@ public class MyTreeMap<K, V>
         }
         return GetMin(root).Key;
     }
-
+    // 14 метод lastKey() для возврата последнего ключа отображения
     public K LastKey()
     {
         if (root == null)
@@ -124,104 +146,28 @@ public class MyTreeMap<K, V>
         }
         return GetMax(root).Key;
     }
-
-    public KeyValuePair<K, V>? FirstEntry()
+    // 15 метод headMap(K end) для возврата сортированного отображения, содержащего элементы, ключ которых меньше end
+    public MyTreeMap<K, V> HeadMap(K end)
     {
-        if (root == null)
-        {
-            return null;
-        }
-        var min = GetMin(root);
-        return new KeyValuePair<K, V>(min.Key, min.Value);
+        var map = new MyTreeMap<K, V>(comparer);
+        AddToHeadMap(root, end, map);
+        return map;
     }
-
-    public KeyValuePair<K, V>? LastEntry()
+    // 16 метод subMap(K start, K end) для возврата отображения, содержащего элементы, чей ключ больше или равен start и меньше end
+    public MyTreeMap<K, V> SubMap(K start, K end)
     {
-        if (root == null)
-        {
-            return null;
-        }
-        var max = GetMax(root);
-        return new KeyValuePair<K, V>(max.Key, max.Value);
+        var map = new MyTreeMap<K, V>(comparer);
+        AddToSubMap(root, start, end, map);
+        return map;
     }
-
-    public KeyValuePair<K, V>? PollFirstEntry()
+    // 17 метод tailMap(K start) для возврата сортированного отображения, содержащего элементы, ключ которых больше start
+    public MyTreeMap<K, V> TailMap(K start)
     {
-        var entry = FirstEntry();
-        if (entry != null)
-        {
-            Remove(entry.Value.Key);
-        }
-        return entry;
+        var map = new MyTreeMap<K, V>(comparer);
+        AddToTailMap(root, start, map);
+        return map;
     }
-
-    public KeyValuePair<K, V>? PollLastEntry()
-    {
-        var entry = LastEntry();
-        if (entry != null)
-        {
-            Remove(entry.Value.Key);
-        }
-        return entry;
-    }
-
-    public K FloorKey(K key)
-    {
-        var node = FloorNode(root, key);
-        if (node != null)
-        {
-            return node.Key;
-        }
-        return default(K);
-    }
-    public K CeilingKey(K key)
-    {
-        var node = CeilingNode(root, key);
-        if (node != null)
-        {
-            return node.Key;
-        }
-        return default(K);
-    }
-    public K LowerKey(K key)
-    {
-        var node = LowerNode(root, key);
-        if (node != null)
-        {
-            return node.Key;
-        }
-        return default(K);
-    }
-
-    public K HigherKey(K key)
-    {
-        var node = HigherNode(root, key);
-        if (node != null)
-        {
-            return node.Key;
-        }
-        return default(K);
-    }
-    public KeyValuePair<K, V>? FloorEntry(K key)
-    {
-        var node = FloorNode(root, key);
-        if (node != null)
-        {
-            return new KeyValuePair<K, V>(node.Key, node.Value);
-        }
-        return null;
-    }
-
-    public KeyValuePair<K, V>? CeilingEntry(K key)
-    {
-        var node = CeilingNode(root, key);
-        if (node != null)
-        {
-            return new KeyValuePair<K, V>(node.Key, node.Value);
-        }
-        return null;
-    }
-
+    // 18 метод lowerEntry(K key) для возврата пары «ключ-значение», где ключ меньше заданного;
     public KeyValuePair<K, V>? LowerEntry(K key)
     {
         var node = LowerNode(root, key);
@@ -231,7 +177,17 @@ public class MyTreeMap<K, V>
         }
         return null;
     }
-
+    // 19 метод floorEntry(K key) для возврата пары «ключ-значение», где ключ меньше или равен заданному
+    public KeyValuePair<K, V>? FloorEntry(K key)
+    {
+        var node = FloorNode(root, key);
+        if (node != null)
+        {
+            return new KeyValuePair<K, V>(node.Key, node.Value);
+        }
+        return null;
+    }
+    // 20 метод higherEntry(K key) для возврата пары «ключ-значение», где ключ больше заданного
     public KeyValuePair<K, V>? HigherEntry(K key)
     {
         var node = HigherNode(root, key);
@@ -241,35 +197,95 @@ public class MyTreeMap<K, V>
         }
         return null;
     }
-    public MyTreeMap<K, V> HeadMap(K end)
+    // 21 метод ceilingEntry(K key) для возврата пары «ключ-значение», где ключ больше или равен заданному
+    public KeyValuePair<K, V>? CeilingEntry(K key)
     {
-        var map = new MyTreeMap<K, V>(comparer);
-        AddToHeadMap(root, end, map);
-        return map;
+        var node = CeilingNode(root, key);
+        if (node != null)
+        {
+            return new KeyValuePair<K, V>(node.Key, node.Value);
+        }
+        return null;
     }
-    public MyTreeMap<K, V> TailMap(K start)
+    // 22 метод lowerKey(K key) для возврата ключа, который меньше заданного
+    public K LowerKey(K key)
     {
-        var map = new MyTreeMap<K, V>(comparer);
-        AddToTailMap(root, start, map);
-        return map;
+        var node = LowerNode(root, key);
+        if (node != null)
+        {
+            return node.Key;
+        }
+        return default(K);
     }
-    public MyTreeMap<K, V> SubMap(K start, K end)
+    // 23 метод floorKey(K key) для возврата ключа, который меньше или равен заданному
+    public K FloorKey(K key)
     {
-        var map = new MyTreeMap<K, V>(comparer);
-        AddToSubMap(root, start, end, map);
-        return map;
+        var node = FloorNode(root, key);
+        if (node != null)
+        {
+            return node.Key;
+        }
+        return default(K);
     }
-    public ISet<K> KeySet()
+    // 24 метод higherKey(K key) для возврата ключа, который больше заданного
+    public K HigherKey(K key)
     {
-        var set = new HashSet<K>();
-        CollectKeys(root, set);
-        return set;
+        var node = HigherNode(root, key);
+        if (node != null)
+        {
+            return node.Key;
+        }
+        return default(K);
     }
-    public ISet<KeyValuePair<K, V>> EntrySet()
+    // 25 метод ceilingKey(K key) для возврата ключа, который больше или равен заданному
+    public K CeilingKey(K key)
     {
-        var set = new HashSet<KeyValuePair<K, V>>();
-        CollectEntries(root, set);
-        return set;
+        var node = CeilingNode(root, key);
+        if (node != null)
+        {
+            return node.Key;
+        }
+        return default(K);
+    }
+    // 26 метод pollFirstEntry() для удаления и возврата первого элемента отображения
+    public KeyValuePair<K, V>? PollFirstEntry()
+    {
+        var entry = FirstEntry();
+        if (entry != null)
+        {
+            Remove(entry.Value.Key);
+        }
+        return entry;
+    }
+    // 27 метод pollLastEntry() для удаления и возврата последнего элемента отображения
+    public KeyValuePair<K, V>? PollLastEntry()
+    {
+        var entry = LastEntry();
+        if (entry != null)
+        {
+            Remove(entry.Value.Key);
+        }
+        return entry;
+    }
+    // 28 метод firstEntry() для возврата первого элемента отображения без удаления
+    public KeyValuePair<K, V>? FirstEntry()
+    {
+        if (root == null)
+        {
+            return null;
+        }
+        var min = GetMin(root);
+        return new KeyValuePair<K, V>(min.Key, min.Value);
+    }
+    // 29 метод lastEntry() для возврата последнего элемента отображения без удаления
+    public KeyValuePair<K, V>? LastEntry()
+    {
+        if (root == null)
+        {
+            return null;
+        }
+        var max = GetMax(root);
+        return new KeyValuePair<K, V>(max.Key, max.Value);
     }
     private int Compare(K a, K b)
     {
