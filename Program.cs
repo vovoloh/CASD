@@ -131,20 +131,22 @@ public class MyTreeMap<K, V>
     // 13 метод firstKey() для возврата первого ключа отображения
     public K FirstKey()
     {
-        if (root == null)
+        var current = root;
+        while (current.Left != null)
         {
-            throw new InvalidOperationException("Empty tree");
+            current = current.Left;
         }
-        return GetMin(root).Key;
+        return current.Key;
     }
     // 14 метод lastKey() для возврата последнего ключа отображения
     public K LastKey()
     {
-        if (root == null)
+        var current = root;
+        while (current.Right != null)
         {
-            throw new InvalidOperationException("Empty tree");
+            current = current.Right;
         }
-        return GetMax(root).Key;
+        return current.Key;
     }
     // 15 метод headMap(K end) для возврата сортированного отображения, содержащего элементы, ключ которых меньше end
     public MyTreeMap<K, V> HeadMap(K end)
@@ -197,6 +199,7 @@ public class MyTreeMap<K, V>
         }
         return null;
     }
+
     // 21 метод ceilingEntry(K key) для возврата пары «ключ-значение», где ключ больше или равен заданному
     public KeyValuePair<K, V>? CeilingEntry(K key)
     {
@@ -274,9 +277,15 @@ public class MyTreeMap<K, V>
         {
             return null;
         }
-        var min = GetMin(root);
-        return new KeyValuePair<K, V>(min.Key, min.Value);
+
+        var current = root;
+        while (current.Left != null)
+        {
+            current = current.Left;
+        }
+        return new KeyValuePair<K, V>(current.Key, current.Value);
     }
+
     // 29 метод lastEntry() для возврата последнего элемента отображения без удаления
     public KeyValuePair<K, V>? LastEntry()
     {
@@ -284,8 +293,13 @@ public class MyTreeMap<K, V>
         {
             return null;
         }
-        var max = GetMax(root);
-        return new KeyValuePair<K, V>(max.Key, max.Value);
+
+        var current = root;
+        while (current.Right != null)
+        {
+            current = current.Right;
+        }
+        return new KeyValuePair<K, V>(current.Key, current.Value);
     }
     private int Compare(K a, K b)
     {
@@ -412,7 +426,11 @@ public class MyTreeMap<K, V>
             }
             else
             {
-                var successor = GetMin(node.Right);
+                var successor = node.Right;
+                while (successor.Left != null)
+                {
+                    successor = successor.Left;
+                }
                 node.Key = successor.Key;
                 node.Value = successor.Value;
                 node.Right = Delete(node.Right, successor.Key);
@@ -440,22 +458,6 @@ public class MyTreeMap<K, V>
             }
         }
         return null;
-    }
-    private Node GetMin(Node node)
-    {
-        while (node != null && node.Left != null)
-        {
-            node = node.Left;
-        }
-        return node;
-    }
-    private Node GetMax(Node node)
-    {
-        while (node != null && node.Right != null)
-        {
-            node = node.Right;
-        }
-        return node;
     }
     private Node FloorNode(Node node, K key)
     {
