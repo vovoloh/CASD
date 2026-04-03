@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+
 public class MyTreeMap<K, V>
 {
     private class Node
     {
         public K Key;
         public V Value;
-        public int Height = 1;
         public Node Left;
         public Node Right;
         public Node(K key, V value)
@@ -15,12 +15,14 @@ public class MyTreeMap<K, V>
             Value = value;
         }
     }
+
     private Node root;
     private int count;
     private readonly IComparer<K> comparer;
     public MyTreeMap() : this(Comparer<K>.Default)
     {
     }
+
     public MyTreeMap(IComparer<K> comp)
     {
         if (comp == null)
@@ -32,22 +34,30 @@ public class MyTreeMap<K, V>
             comparer = comp;
         }
     }
+        private int Compare(K a, K b)
+    {
+        return comparer.Compare(a, b);
+    }
+
     //3 метод clear() для удаления всех пар «ключ-значение»
     public void Clear()
     {
         root = null;
         count = 0;
     }
+
     //4 метод containsKey(object key) для проверки, содержит ли отображение указанный ключ
     public bool ContainsKey(K key)
     {
         return GetNode(key) != null;
     }
+
     //5 метод containsValue(object value) для проверки, содержит ли отображение указанное значение
     public bool ContainsValue(V value)
     {
         return ContainsValue(root, value);
     }
+
     private bool ContainsValue(Node node, V value)
     {
         if (node == null)
@@ -60,6 +70,7 @@ public class MyTreeMap<K, V>
         }
         return ContainsValue(node.Left, value) || ContainsValue(node.Right, value);
     }
+
     // 6 метод entrySet() для возврата множества (Set) всех пар «ключ-значение» 
     public ISet<KeyValuePair<K, V>> EntrySet()
     {
@@ -67,6 +78,7 @@ public class MyTreeMap<K, V>
         CollectEntries(root, set);
         return set;
     }
+
     // 7 метод get(object key) для возврата значения, связанного с указанным ключом, или null, если ключ не найден
     public V Get(K key)
     {
@@ -77,11 +89,13 @@ public class MyTreeMap<K, V>
         }
         return default(V);
     }
+
     // 8 метод isEmpty() для проверки, является ли отображение пустым
     public bool IsEmpty()
     {
         return count == 0;
     }
+
     private bool AreEqual(V a, V b)
     {
         if (a == null)
@@ -90,6 +104,7 @@ public class MyTreeMap<K, V>
         }
         return a.Equals(b);
     }
+
     // 9 метод keySet() для возврата множества (Set) всех ключей в отображении
     public ISet<K> KeySet()
     {
@@ -97,6 +112,7 @@ public class MyTreeMap<K, V>
         CollectKeys(root, set);
         return set;
     }
+
     // 10 метод put(K key, V value) для добавления пары «ключ-значение»
     public V Put(K key, V value)
     {
@@ -111,6 +127,7 @@ public class MyTreeMap<K, V>
         count++;
         return default(V);
     }
+
     // 11 метод remove(object key) для удаления пары «ключ-значение»
     public V Remove(K key)
     {
@@ -123,11 +140,13 @@ public class MyTreeMap<K, V>
         count--;
         return old;
     }
+
     // 12 метод size() для возврата количества пар «ключ-значение»
     public int Size()
     {
         return count;
     }
+
     // 13 метод firstKey() для возврата первого ключа отображения
     public K FirstKey()
     {
@@ -138,6 +157,7 @@ public class MyTreeMap<K, V>
         }
         return current.Key;
     }
+
     // 14 метод lastKey() для возврата последнего ключа отображения
     public K LastKey()
     {
@@ -148,6 +168,7 @@ public class MyTreeMap<K, V>
         }
         return current.Key;
     }
+
     // 15 метод headMap(K end) для возврата сортированного отображения, содержащего элементы, ключ которых меньше end
     public MyTreeMap<K, V> HeadMap(K end)
     {
@@ -155,6 +176,7 @@ public class MyTreeMap<K, V>
         AddToHeadMap(root, end, map);
         return map;
     }
+
     // 16 метод subMap(K start, K end) для возврата отображения, содержащего элементы, чей ключ больше или равен start и меньше end
     public MyTreeMap<K, V> SubMap(K start, K end)
     {
@@ -162,6 +184,7 @@ public class MyTreeMap<K, V>
         AddToSubMap(root, start, end, map);
         return map;
     }
+
     // 17 метод tailMap(K start) для возврата сортированного отображения, содержащего элементы, ключ которых больше start
     public MyTreeMap<K, V> TailMap(K start)
     {
@@ -169,6 +192,7 @@ public class MyTreeMap<K, V>
         AddToTailMap(root, start, map);
         return map;
     }
+
     // 18 метод lowerEntry(K key) для возврата пары «ключ-значение», где ключ меньше заданного;
     public KeyValuePair<K, V>? LowerEntry(K key)
     {
@@ -179,6 +203,7 @@ public class MyTreeMap<K, V>
         }
         return null;
     }
+
     // 19 метод floorEntry(K key) для возврата пары «ключ-значение», где ключ меньше или равен заданному
     public KeyValuePair<K, V>? FloorEntry(K key)
     {
@@ -189,6 +214,7 @@ public class MyTreeMap<K, V>
         }
         return null;
     }
+
     // 20 метод higherEntry(K key) для возврата пары «ключ-значение», где ключ больше заданного
     public KeyValuePair<K, V>? HigherEntry(K key)
     {
@@ -210,6 +236,7 @@ public class MyTreeMap<K, V>
         }
         return null;
     }
+
     // 22 метод lowerKey(K key) для возврата ключа, который меньше заданного
     public K LowerKey(K key)
     {
@@ -220,6 +247,7 @@ public class MyTreeMap<K, V>
         }
         return default(K);
     }
+
     // 23 метод floorKey(K key) для возврата ключа, который меньше или равен заданному
     public K FloorKey(K key)
     {
@@ -230,6 +258,7 @@ public class MyTreeMap<K, V>
         }
         return default(K);
     }
+
     // 24 метод higherKey(K key) для возврата ключа, который больше заданного
     public K HigherKey(K key)
     {
@@ -240,6 +269,7 @@ public class MyTreeMap<K, V>
         }
         return default(K);
     }
+
     // 25 метод ceilingKey(K key) для возврата ключа, который больше или равен заданному
     public K CeilingKey(K key)
     {
@@ -250,6 +280,7 @@ public class MyTreeMap<K, V>
         }
         return default(K);
     }
+
     // 26 метод pollFirstEntry() для удаления и возврата первого элемента отображения
     public KeyValuePair<K, V>? PollFirstEntry()
     {
@@ -260,6 +291,7 @@ public class MyTreeMap<K, V>
         }
         return entry;
     }
+
     // 27 метод pollLastEntry() для удаления и возврата последнего элемента отображения
     public KeyValuePair<K, V>? PollLastEntry()
     {
@@ -270,6 +302,7 @@ public class MyTreeMap<K, V>
         }
         return entry;
     }
+
     // 28 метод firstEntry() для возврата первого элемента отображения без удаления
     public KeyValuePair<K, V>? FirstEntry()
     {
@@ -277,7 +310,6 @@ public class MyTreeMap<K, V>
         {
             return null;
         }
-
         var current = root;
         while (current.Left != null)
         {
@@ -293,87 +325,12 @@ public class MyTreeMap<K, V>
         {
             return null;
         }
-
         var current = root;
         while (current.Right != null)
         {
             current = current.Right;
         }
         return new KeyValuePair<K, V>(current.Key, current.Value);
-    }
-    private int Compare(K a, K b)
-    {
-        return comparer.Compare(a, b);
-    }
-    private int Height(Node node)
-    {
-        if (node != null)
-        {
-            return node.Height;
-        }
-        return 0;
-    }
-    private void UpdateHeight(Node node)
-    {
-        if (node != null)
-        {
-            node.Height = 1 + Math.Max(Height(node.Left), Height(node.Right));
-        }
-    }
-    private int BalanceFactor(Node node)
-    {
-        if (node != null)
-        {
-            return Height(node.Left) - Height(node.Right);
-        }
-        return 0;
-    }
-    private Node RotateRight(Node y)
-    {
-        var x = y.Left;
-        var T2 = x.Right;
-        x.Right = y;
-        y.Left = T2;
-        UpdateHeight(y);
-        UpdateHeight(x);
-        return x;
-    }
-    private Node RotateLeft(Node x)
-    {
-        var y = x.Right;
-        var T2 = y.Left;
-        y.Left = x;
-        x.Right = T2;
-        UpdateHeight(x);
-        UpdateHeight(y);
-        return y;
-    }
-    private Node Balance(Node node)
-    {
-        if (node == null)
-        {
-            return null;
-        }
-        UpdateHeight(node);
-        int bf = BalanceFactor(node);
-
-        if (bf > 1)
-        {
-            if (BalanceFactor(node.Left) < 0)
-            {
-                node.Left = RotateLeft(node.Left);
-            }
-            return RotateRight(node);
-        }
-        if (bf < -1)
-        {
-            if (BalanceFactor(node.Right) > 0)
-            {
-                node.Right = RotateRight(node.Right);
-            }
-            return RotateLeft(node);
-        }
-        return node;
     }
     private Node Insert(Node node, K key, V value)
     {
@@ -394,8 +351,9 @@ public class MyTreeMap<K, V>
         {
             node.Value = value;
         }
-        return Balance(node);
+        return node;
     }
+
     private Node Delete(Node node, K key)
     {
         if (node == null)
@@ -413,31 +371,27 @@ public class MyTreeMap<K, V>
         }
         else
         {
-            if (node.Left == null || node.Right == null)
+            if (node.Left == null)
             {
-                if (node.Left != null)
-                {
-                    return node.Left;
-                }
-                else
-                {
-                    return node.Right;
-                }
+                return node.Right;
             }
-            else
+            if (node.Right == null)
             {
-                var successor = node.Right;
-                while (successor.Left != null)
-                {
-                    successor = successor.Left;
-                }
-                node.Key = successor.Key;
-                node.Value = successor.Value;
-                node.Right = Delete(node.Right, successor.Key);
+                return node.Left;
             }
+            // ищем преемника (минимальный в правом поддереве)
+            var successor = node.Right;
+            while (successor.Left != null)
+            {
+                successor = successor.Left;
+            }
+            node.Key = successor.Key;
+            node.Value = successor.Value;
+            node.Right = Delete(node.Right, successor.Key);
         }
-        return Balance(node);
+        return node;
     }
+
     private Node GetNode(K key)
     {
         var current = root;
@@ -459,6 +413,7 @@ public class MyTreeMap<K, V>
         }
         return null;
     }
+
     private Node FloorNode(Node node, K key)
     {
         Node result = null;
@@ -481,6 +436,7 @@ public class MyTreeMap<K, V>
         }
         return result;
     }
+
     private Node CeilingNode(Node node, K key)
     {
         Node result = null;
@@ -503,6 +459,7 @@ public class MyTreeMap<K, V>
         }
         return result;
     }
+
     private Node LowerNode(Node node, K key)
     {
         Node result = null;
@@ -521,6 +478,7 @@ public class MyTreeMap<K, V>
         }
         return result;
     }
+
     private Node HigherNode(Node node, K key)
     {
         Node result = null;
@@ -539,6 +497,7 @@ public class MyTreeMap<K, V>
         }
         return result;
     }
+
     private void AddToHeadMap(Node node, K end, MyTreeMap<K, V> map)
     {
         if (node == null)
@@ -557,6 +516,7 @@ public class MyTreeMap<K, V>
             AddToHeadMap(node.Left, end, map);
         }
     }
+
     private void AddToTailMap(Node node, K start, MyTreeMap<K, V> map)
     {
         if (node == null)
@@ -575,6 +535,7 @@ public class MyTreeMap<K, V>
             AddToTailMap(node.Right, start, map);
         }
     }
+
     private void AddToSubMap(Node node, K start, K end, MyTreeMap<K, V> map)
     {
         if (node == null)
@@ -597,6 +558,7 @@ public class MyTreeMap<K, V>
             AddToSubMap(node.Left, start, end, map);
         }
     }
+
     private void CollectKeys(Node node, HashSet<K> set)
     {
         if (node == null)
@@ -607,6 +569,7 @@ public class MyTreeMap<K, V>
         set.Add(node.Key);
         CollectKeys(node.Right, set);
     }
+
     private void CollectEntries(Node node, HashSet<KeyValuePair<K, V>> set)
     {
         if (node == null)
@@ -618,6 +581,7 @@ public class MyTreeMap<K, V>
         CollectEntries(node.Right, set);
     }
 }
+
 public class Program
 {
     public static void Main()
