@@ -420,253 +420,137 @@ public class MyHashMap<K, V>
         return default(V);
     }
 }
-public class Tester
+public class Program
 {
+    private const int n = 20;
     private static readonly int[] Sizes = { 100000, 1000000, 10000000 };
 
-    private const int n = 20;
-    private List<TestResult> results;
-    public Tester()
+    private static Random random = new Random(42);
+    private static int[] GenerateRandomKeys(int size)
     {
-        results = new List<TestResult>();
-    }
-    public class TestResult
-    {
-        public string Operation;
-        public string Structure;
-        public int Size;
-        public double Time;
-
-        public TestResult(string oper, string structure, int size, double time)
-        {
-            Operation = oper;
-            Structure = structure;
-            Size = size;
-            Time = time;
-        }
-    }
-    public void RunTests()
-    {
-        foreach (int size in Sizes)
-        {
-            Console.WriteLine("Размер: " + size + " элементов");
-            TestPut(size);
-            TestGet(size);
-            TestRemove(size);
-            Console.WriteLine();
-        }
+        HashSet<int> set = new HashSet<int>();
+        while (set.Count < size)
+            set.Add(random.Next());
+        int[] keys = new int[size];
+        set.CopyTo(keys);
+        return keys;
     }
 
-    private void TestPut(int size)
+    static void TestPut(int size)
     {
-        Console.WriteLine("Тест Put");
-        int[] keys = GenerateKeys(size);
+        int[] keys = GenerateRandomKeys(size);
 
-        double hashMapTime = PutHashMap(keys, size);
-        results.Add(new TestResult("Put", "MyHashMap", size, hashMapTime));
-        Console.WriteLine("MyHashMap: " + hashMapTime.ToString("F2") + "мс");
-
-        double treeMapTime = PutTreeMap(keys, size);
-        results.Add(new TestResult("Put", "MyTreeMap", size, treeMapTime));
-        Console.WriteLine("MyTreeMap: " + treeMapTime.ToString("F2") + "мс");
-    }
-
-    private double PutHashMap(int[] keys, int size)
-    {
-        double totalTime = 0;
-
-        for (int i = 0; i < n; i++)
+        double hashMapTime = 0;
+        for (int j = 0; j < n; j++)
         {
             MyHashMap<int, int> map = new MyHashMap<int, int>();
-
             Stopwatch sw = Stopwatch.StartNew();
-            for (int j = 0; j < size; j++)
-            {
-                map.Put(keys[j], j);
-            }
+            for (int i = 0; i < size; i++)
+                map.Put(keys[i], i);
             sw.Stop();
-
-            totalTime += sw.Elapsed.TotalMilliseconds;
+            hashMapTime += sw.Elapsed.TotalMilliseconds;
         }
-        return totalTime / n;
-    }
+        hashMapTime /= n;
+        Console.WriteLine($"MyHashMap Put: {hashMapTime:F2} мс");
 
-    private double PutTreeMap(int[] keys, int size)
-    {
-        double totalTime = 0;
-
-        for (int i = 0; i < n; i++)
+        double treeMapTime = 0;
+        for (int j = 0; j < n; j++)
         {
             MyTreeMap<int, int> map = new MyTreeMap<int, int>();
-
             Stopwatch sw = Stopwatch.StartNew();
-            for (int j = 0; j < size; j++)
-            {
-                map.Put(keys[j], j);
-            }
+            for (int i = 0; i < size; i++)
+                map.Put(keys[i], i);
             sw.Stop();
-
-            totalTime += sw.Elapsed.TotalMilliseconds;
+            treeMapTime += sw.Elapsed.TotalMilliseconds;
         }
-        return totalTime / n;
+        treeMapTime /= n;
+        Console.WriteLine($"MyTreeMap Put: {treeMapTime:F2} мс");
     }
 
-    private void TestGet(int size)
+    static void TestGet(int size)
     {
-        Console.WriteLine("Тест Get");
-
-
-        int[] keys = GenerateKeys(size);
+        int[] keys = GenerateRandomKeys(size);
         MyHashMap<int, int> hashMap = new MyHashMap<int, int>();
-        MyTreeMap<int, int> treeMap = new MyTreeMap<int, int>();
-
         for (int i = 0; i < size; i++)
         {
             hashMap.Put(keys[i], i);
+        }
+
+        double hashMapTime = 0;
+        for (int j = 0; j < n; j++)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            for (int i = 0; i < size; i++)
+                hashMap.Get(keys[i]);
+            sw.Stop();
+            hashMapTime += sw.Elapsed.TotalMilliseconds;
+        }
+        hashMapTime /= n;
+        Console.WriteLine($"MyHashMap Get: {hashMapTime:F2} мс");
+
+        MyTreeMap<int, int> treeMap = new MyTreeMap<int, int>();
+        for (int i = 0; i < size; i++)
             treeMap.Put(keys[i], i);
-        }
-        double hashMapTime = GetHashMap(hashMap, keys, size);
-        results.Add(new TestResult("Get", "MyHashMap", size, hashMapTime));
-        Console.WriteLine("MyHashMap: " + hashMapTime.ToString("F2") + "мс");
 
-        double treeMapTime = GetTreeMap(treeMap, keys, size);
-        results.Add(new TestResult("Get", "MyTreeMap", size, treeMapTime));
-        Console.WriteLine("MyTreeMap: " + treeMapTime.ToString("F2") + "мс");
-    }
-
-    private double GetHashMap(MyHashMap<int, int> map, int[] keys, int size)
-    {
-        double totalTime = 0;
-
-        for (int i = 0; i < n; i++)
+        double treeMapTime = 0;
+        for (int j = 0; j < n; j++)
         {
             Stopwatch sw = Stopwatch.StartNew();
-            for (int j = 0; j < size; j++)
-            {
-                int v = map.Get(keys[j]);
-            }
+            for (int i = 0; i < size; i++)
+                treeMap.Get(keys[i]);
             sw.Stop();
-
-            totalTime += sw.Elapsed.TotalMilliseconds;
+            treeMapTime += sw.Elapsed.TotalMilliseconds;
         }
-
-        return totalTime / n;
+        treeMapTime /= n;
+        Console.WriteLine($"MyTreeMap Get: {treeMapTime:F2} мс");
     }
 
-    private double GetTreeMap(MyTreeMap<int, int> map, int[] keys, int size)
+    static void TestRemove(int size)
     {
-        double totalTime = 0;
+        int[] keys = GenerateRandomKeys(size);
 
-        for (int i = 0; i < n; i++)
-        {
-            Stopwatch sw = Stopwatch.StartNew();
-            for (int j = 0; j < size; j++)
-            {
-                int v = map.Get(keys[j]);
-            }
-            sw.Stop();
-
-            totalTime += sw.Elapsed.TotalMilliseconds;
-        }
-
-        return totalTime / n;
-    }
-    private void TestRemove(int size)
-    {
-        Console.WriteLine("Тест Remove");
-
-        int[] keys = GenerateKeys(size);
-
-        double hashMapTime = RemoveHashMap(keys, size);
-        results.Add(new TestResult("Remove", "MyHashMap", size, hashMapTime));
-        Console.WriteLine("MyHashMap: " + hashMapTime.ToString("F2") + "мс");
-
-        double treeMapTime = RemoveTreeMap(keys, size);
-        results.Add(new TestResult("Remove", "MyTreeMap", size, treeMapTime));
-        Console.WriteLine("MyTreeMap: " + treeMapTime.ToString("F2") + "мс");
-    }
-
-    private double RemoveHashMap(int[] keys, int size)
-    {
-        double totalTime = 0;
-
+        double hashMapTime = 0;
         for (int j = 0; j < n; j++)
         {
             MyHashMap<int, int> map = new MyHashMap<int, int>();
             for (int i = 0; i < size; i++)
-            {
                 map.Put(keys[i], i);
-            }
-
             Stopwatch sw = Stopwatch.StartNew();
             for (int i = 0; i < size; i++)
-            {
                 map.Remove(keys[i]);
-            }
             sw.Stop();
-
-            totalTime += sw.Elapsed.TotalMilliseconds;
+            hashMapTime += sw.Elapsed.TotalMilliseconds;
         }
+        hashMapTime /= n;
+        Console.WriteLine($"MyHashMap Remove: {hashMapTime:F2} мс");
 
-        return totalTime / n;
-    }
-
-    private double RemoveTreeMap(int[] keys, int size)
-    {
-        double totalTime = 0;
-
+        double treeMapTime = 0;
         for (int j = 0; j < n; j++)
         {
             MyTreeMap<int, int> map = new MyTreeMap<int, int>();
             for (int i = 0; i < size; i++)
-            {
                 map.Put(keys[i], i);
-            }
-
             Stopwatch sw = Stopwatch.StartNew();
             for (int i = 0; i < size; i++)
-            {
                 map.Remove(keys[i]);
-            }
             sw.Stop();
-
-            totalTime += sw.Elapsed.TotalMilliseconds;
+            treeMapTime += sw.Elapsed.TotalMilliseconds;
         }
-
-        return totalTime / n;
+        treeMapTime /= n;
+        Console.WriteLine($"MyTreeMap Remove: {treeMapTime:F2} мс");
     }
 
-    private int[] GenerateKeys(int size)
+    static void Main()
     {
-        int[] keys = new int[size];
-        for (int i = 0; i < size; i++)
-        {
-            keys[i] = i;
-        }
-        Random random = new Random(42);
-        for (int i = size - 1; i > 0; i--)
-        {
-            int j = random.Next(i + 1);
-            int tmp = keys[i];
-            keys[i] = keys[j];
-            keys[j] = tmp;
-        }
+        Console.WriteLine($"Количество запусков для усреднения: {n}");
+        Console.WriteLine("Размеры: 100000, 1000000, 10000000");
 
-        return keys;
-    }
-}
-public class Program
-{
-    public static void Main()
-    {
-        Console.WriteLine("Сравнение производительности MyHashMap и MyTreeMap");
-        Console.WriteLine();
-        Console.WriteLine("Размеры: 100 000, 1 000 000, 10 000 000");
-        Console.WriteLine("Количество запусков для усреднения: 20");
-        Console.WriteLine();
-        Tester tester = new Tester();
-        tester.RunTests();
-        Console.WriteLine("Тестирование завершено.");
+        foreach (int size in Sizes)
+        {
+            TestPut(size);
+            TestGet(size);
+            TestRemove(size);
+        }
         Console.ReadKey();
     }
 }
